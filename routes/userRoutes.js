@@ -10,15 +10,18 @@ router.post('/signup', async (req, res) => {
   try {
     const { first_name, last_name, email, password, age } = req.body;
 
-    // التحقق من وجود المستخدم بالفعل
+    // Check if the email is already registered
     const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: 'Email already in use' });
+    if (existingUser) {
+      return res.status(200).json({
+        message: 'This email is already registered. You can sign in instead.',
+      });
+    }
 
-    // تشفير كلمة المرور
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // إنشاء مستخدم جديد
+    // Create a new user
     const newUser = new User({
       first_name,
       last_name,
@@ -28,9 +31,13 @@ router.post('/signup', async (req, res) => {
     });
     await newUser.save();
 
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({ message: 'Account created successfully!' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res
+      .status(500)
+      .json({
+        error: 'An error occurred while signing up. Please try again later.',
+      });
   }
 });
 
