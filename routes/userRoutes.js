@@ -33,11 +33,9 @@ router.post('/signup', async (req, res) => {
 
     res.status(201).json({ message: 'Account created successfully!' });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'An error occurred while signing up. Please try again later.',
-      });
+    res.status(500).json({
+      error: 'An error occurred while signing up. Please try again later.',
+    });
   }
 });
 
@@ -54,10 +52,17 @@ router.post('/signin', async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: 'Invalid email or password' });
 
-    const token = jwt.sign({ userID: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
-
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        age: user.age,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
     res.json({ message: 'Login successful', token });
   } catch (error) {
     res.status(500).json({ error: error.message });
